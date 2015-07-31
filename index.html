@@ -1,0 +1,163 @@
+<html ng-app="app">
+  <head>
+    <meta charset="utf-8">
+    <style>
+      #container {
+        position:relative;
+      }
+      .item {
+        border:1px solid;
+        width: 200px;
+        min-height: 70px;
+        position:absolute;
+        background-color: #ffffff
+      }
+      .is-hidden {
+        display: none;
+      }
+
+    </style>
+    <title>masonry</title>
+
+  </head>
+  <body>
+    <h1>masonry</h1>
+
+    <div masonry="masonry" id="container" class="is-hidden">
+      <div ng-repeat="item in items" class="item">
+        <span>{{item.text}}</span>
+        <img ng-if="item.img" ng-src="{{item.img}}">
+      </div>
+    </div>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+    <script>
+      angular.module('app', [])
+      .directive('masonry', [
+        '$window',
+        '$timeout',
+        function($window, $timeout) {
+
+          return {
+            restrict: 'A',
+            replace: true,
+            link: function (iScope, iElem, iAttr){
+              iScope.items = [
+                {
+                  text:'1:ああああああああああああああ',
+                },
+                {
+                  text:'2:いいいいいいい',
+                },
+                {
+                  text:'3:ううう',
+                  img: 'http://placekitten.com/g/200/300'
+                },
+                {
+                  text:'4:ええええええええええええええええええええええええええええええええ',
+                },
+                {
+                  text:'5:お',
+                  img: 'http://placekitten.com/g/200/300'
+                },
+                {
+                  text:'6:かかか',
+                },
+                {
+                  text:'7:ききききき',
+                  img: 'http://placekitten.com/g/200/300'
+                },
+                {
+                  text:'8:く',
+                },
+                {
+                  text:'9:けけけけけけけけけけけけけけけけけけけけけけけけ',
+                },
+                {
+                  text:'10:こ',
+                },
+                {
+                  text:'11:さささささ',
+                },
+                {
+                  text:'12:しししし',
+                  img: 'http://placekitten.com/g/200/300'
+                },
+                {
+                  text:'13:すすすす',
+                },
+                {
+                  text:'14:せ',
+                },
+                {
+                  text:'15:そそそそそそ',
+                }
+              ];
+
+              var $items
+              var elems = Array(iScope.items.length)
+              var col = 4;// カラム数 後で変更
+              var margin = {w:20, h:20};
+              var heightAry = new Array(col);
+              for(var i = 0;i < col; i++) {
+                heightAry[i] = 0;
+              }
+              itemWidth = 200;
+
+              function watch (){
+                heightAry = new Array(col);
+                for(var i = 0;i < col; i++) {
+                  heightAry[i] = 0;
+                }
+                for(var i = 0; i< iScope.items.length; i++) {
+                  var minIndex = getMinIndex(heightAry);
+                  $($items[i]).animate({
+                    'top': heightAry[minIndex],
+                    'left': minIndex * (itemWidth + margin.w)
+                  }, 300);
+                  heightAry[minIndex] += elems[i].h + margin.h
+                }
+              }
+
+              function getMinIndex (ary) {
+                var minNum = ary[0], minIndex = 0;
+                for(var i = 0; i< ary.length;i++) {
+                  if(minNum > ary[i]) {
+                    minNum = ary[i]
+                    minIndex = i;
+                  }
+                }
+                return minIndex;
+              }
+
+              $timeout(function(){
+                $items = iElem.find('.item');
+                itemWidth = iElem.find('.item').first().width()
+                iElem.removeClass('is-hidden');
+                angular.forEach($items, function(value, i) {
+                  var width = $(value).width()
+                  var height = $(value).height()
+                  elems[i] = {w:width, h:height};
+                  $(value).css({
+                    top: 0,
+                    left: 0
+                  })
+                });
+                watch();
+              }, 1000);
+              
+              $window.addEventListener('resize', function(){
+                var prevCol = col; 
+                var width = $('#container').width()
+                col = Math.ceil(width / itemWidth) - 1;
+                if(prevCol === col) return;
+                watch();
+              }) 
+            }     
+          }
+        }
+      ])
+
+    </script>
+  </body>
+</html>
